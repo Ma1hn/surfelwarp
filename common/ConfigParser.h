@@ -23,12 +23,14 @@ namespace surfelwarp {
 	private:
 		std::string m_data_prefix;
 		std::string m_gpc_model_path;
+		std::string m_save_path;
 		void setDefaultPathConfig();
 		void savePathConfigToJson(void* json_ptr) const;
 		void loadPathConfigFromJson(const void* json_ptr);
 	public:
 		const boost::filesystem::path data_path() const;
 		const boost::filesystem::path gpc_model_path() const;
+		const boost::filesystem::path save_path() const;
 		
 		/* The frame index
 		 */

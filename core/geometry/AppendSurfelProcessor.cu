@@ -205,7 +205,10 @@ namespace surfelwarp { namespace device {
 void surfelwarp::AppendSurfelProcessor::BuildSurfelAndFiniteDiffVertex(cudaStream_t stream) {
 	//The size of array contains the element itself
 	const auto num_candidate = m_surfel_candidate_pixel.Size();
+	LOG(INFO)<<"size of surfel candidate pixel: "<<num_candidate;
+	LOG(INFO)<<"here";
 	m_surfel_vertex_confid.ResizeArrayOrException(num_candidate);
+	LOG(INFO)<<"here";
 	m_surfel_normal_radius.ResizeArrayOrException(num_candidate);
 	m_surfel_color_time.ResizeArrayOrException(num_candidate);
 	m_candidate_vertex_finite_diff.ResizeArrayOrException(num_candidate * kNumFiniteDiffVertex);

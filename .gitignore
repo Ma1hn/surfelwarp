@@ -40,7 +40,7 @@
 *.fatbin
 
 # The data path
-data/*
+test_data/*
 
 # The build files
 build/*
@@ -58,7 +58,7 @@ cmake-build*
 # *khr*
 
 # the result directory
-*results/*
+*result/*
 
 # gpc model
 sintel_small_speed

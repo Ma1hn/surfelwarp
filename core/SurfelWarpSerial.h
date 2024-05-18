@@ -70,7 +70,7 @@ namespace surfelwarp {
 		
 		//Process the first frame
 		void ProcessFirstFrame();
-		void ProcessNextFrameNoReinit();
+		void ProcessNextFrameNoReinit(const ConfigParser &config);
 		void ProcessNextFrameWithReinit(const ConfigParser &config);
 		//void ProcessNextFrameLegacySolver();
 		
@@ -111,7 +111,7 @@ namespace surfelwarp {
 		);
 	
 		//The directory for this iteration
-		static boost::filesystem::path createOrGetDataDirectory(int frame_idx);
+		static boost::filesystem::path createOrGetDataDirectory(int frame_idx, boost::filesystem::path save_path);
 
 		//The decision function for integration and reinit
 		bool shouldDoIntegration() const;

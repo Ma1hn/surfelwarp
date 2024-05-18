@@ -265,7 +265,7 @@ void surfelwarp::Renderer::SaveLiveAlbedoMap(
 	);
 	
 	//Save it
-	//m_visualization_draw_buffers.save(path);
+	m_visualization_draw_buffers.save(path);
 }
 
 

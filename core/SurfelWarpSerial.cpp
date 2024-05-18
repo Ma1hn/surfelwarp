@@ -12,7 +12,8 @@
 #include "imgproc/frameio/FetchInterface.h"
 #include "imgproc/frameio/GenericFileFetch.h"
 #include "imgproc/frameio/VolumeDeformFileFetch.h"
-#include "imgproc/frameio/AzureKinectDKFetch.h"
+// #include "imgproc/frameio/AzureKinectDKFetch.h"
+#include "visualization/Visualizer.h"
 
 #include <thread>
 #include <fstream>
@@ -28,8 +29,8 @@ surfelwarp::SurfelWarpSerial::SurfelWarpSerial() {
 		fetcher = std::make_shared<GenericFileFetch>(config.data_path());
 	}else if(config.getIOMode() == "VolumeDeformFileFetch"){
 		fetcher = std::make_shared<VolumeDeformFileFetch>(config.data_path());
-	}else if (config.getIOMode() == "kinect_dk"){
-		fetcher = std::make_shared<AzureKinectDKFetch>(config.data_path(), config.isSaveOnlineFrame());
+	// }else if (config.getIOMode() == "kinect_dk"){
+	// 	fetcher = std::make_shared<AzureKinectDKFetch>(config.data_path(), config.isSaveOnlineFrame());
 	}else{
 		throw(std::runtime_error(config.getIOMode() + " io_mode not supported"));
 	}
@@ -145,7 +146,6 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 
 	//Process the next depth frame
 	CameraObservation observation;
-	//m_image_processor->ProcessFrameSerial(observation, m_frame_idx);
 	m_image_processor->ProcessFrameStreamed(observation, m_frame_idx);
 	TimeLogger::printTimeLog("ImageProcess a frame");
 	
@@ -170,7 +170,6 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 	);
 	
 	//Solve it
-	//m_warp_solver->SolveSerial();
 	m_warp_solver->SolveStreamed();
 	const auto solved_se3 = m_warp_solver->SolvedNodeSE3();
 	TimeLogger::printTimeLog("non-rigid solve");
@@ -299,12 +298,11 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 		
 		//Do fusion
 		unsigned num_remaining_surfel, num_appended_surfel;
-		//m_live_geometry_updater->ProcessFusionSerial(num_remaining_surfel, num_appended_surfel);
+		LOG(INFO)<<"here";
 		m_live_geometry_updater->ProcessFusionStreamed(num_remaining_surfel, num_appended_surfel);
 		
 		//Do a inverse warping
 		SurfelNodeDeformer::InverseWarpSurfels(*m_warp_field, *m_surfel_geometry[fused_geometry_idx], solved_se3);
-		
 		//Extend the warp field reference nodes and SE3
 		const auto prev_node_size = m_warp_field->CheckAndGetNodeSize();
 		const float4* appended_vertex_ptr = m_surfel_geometry[fused_geometry_idx]->ReferenceVertexArray().RawPtr() + num_remaining_surfel;
@@ -312,10 +310,8 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 		const ushort4* appended_knn_ptr = m_surfel_geometry[fused_geometry_idx]->SurfelKNNArray().RawPtr() + num_remaining_surfel;
 		DeviceArrayView<ushort4> appended_surfel_knn(appended_knn_ptr, num_appended_surfel);
 		m_warpfield_extender->ExtendReferenceNodesAndSE3Sync(appended_vertex_view, appended_surfel_knn, m_warp_field);
-		
 		//Rebuild the node graph
 		m_warp_field->BuildNodeGraph();
-		
 		//Update skinning
 		if(m_warp_field->CheckAndGetNodeSize() > prev_node_size){
 			m_reference_knn_skinner->UpdateBruteForceSkinningIndexWithNewNodes(m_warp_field->ReferenceNodeCoordinates().DeviceArrayReadOnly(), prev_node_size);
@@ -337,7 +333,7 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 	//Debug save
 	if(config.isOfflineRendering()) {
 		const auto with_recent = draw_recent || use_reinit;
-		const auto& save_dir = createOrGetDataDirectory(m_frame_idx);
+		const auto& save_dir = createOrGetDataDirectory(m_frame_idx, config.save_path());
 		saveCameraObservations(observation, save_dir);
 		saveSolverMaps(solver_maps, save_dir);
 
@@ -458,10 +454,10 @@ void surfelwarp::SurfelWarpSerial::saveVisualizationMaps(
 		m_renderer->SaveReferencePhongMap (num_vertex, vao_idx, m_frame_idx, init_world2camera, (save_dir /  "reference_phong.png").string(), with_recent);
 }
 
-boost::filesystem::path surfelwarp::SurfelWarpSerial::createOrGetDataDirectory(int frame_idx) {
+boost::filesystem::path surfelwarp::SurfelWarpSerial::createOrGetDataDirectory(int frame_idx, boost::filesystem::path save_path) {
 	//Construct the path
-
-	boost::filesystem::path result_folder("temp/frame_" + std::to_string(frame_idx));
+	std::string frame_path = "/frame_" + std::to_string(frame_idx);
+	boost::filesystem::path result_folder = save_path / frame_path;
 	if(!boost::filesystem::exists(result_folder)) {
 		boost::filesystem::create_directories(result_folder);
 	}
@@ -469,7 +465,6 @@ boost::filesystem::path surfelwarp::SurfelWarpSerial::createOrGetDataDirectory(i
 	//The directory should be always exist
 	return result_folder;
 }
-
 
 // The decision function for integrate and reinit
 // Currently not implemented

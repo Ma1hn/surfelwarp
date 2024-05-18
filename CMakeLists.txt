@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(surfelwarp)
 
 # configuration types
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRINGS "Configs" FORCE)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 if(DEFINED CMAKE_BUILD_TYPE)
     SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
 ENDIF()
 
+# add_definitions(-DCUDA_DEBUG_SYNC_CHECK)
 
 # Add cmake module path
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -23,7 +24,7 @@ set(CUDA_ARCH "50 through 61" CACHE STRING "Architecture(s) for which to generat
 if(CUDA_VERSION_MAJOR LESS 10)
     set_property(CACHE CUDA_ARCH PROPERTY STRINGS "50 through 61" "50" "60" "61")
 else()
-    set_property(CACHE CUDA_ARCH PROPERTY STRINGS "50 through 61" "50" "60" "61" "70" "72" "75")
+    set_property(CACHE CUDA_ARCH PROPERTY STRINGS "50 through 61" "50" "60" "61" "70" "72" "75" "86")
 endif()
 if(CUDA_ARCH STREQUAL "50 through 61")
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -arch=sm_60")
@@ -39,7 +40,7 @@ endif()
 find_package(glfw3 REQUIRED)
 
 # k4a package: for Azure Kinect DK
-find_package(k4a)
+# find_package(k4a)
 
 # The library and compiler flags on Windows
 if(MSVC)

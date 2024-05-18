@@ -84,8 +84,8 @@ void surfelwarp::ConfigParser::setDefaultPathConfig() {
 	m_data_prefix = "C:/Users/wei/Documents/Visual Studio 2015/Projects/Fusion/data/boxing";
 	m_gpc_model_path = "C:/Users/wei/Documents/Visual Studio 2015/Projects/surfelwarp/data/gpc_models/sintel_small_speed";
 #else
-	m_data_prefix = "/home/wei/Documents/programs/surfelwarp/data/boxing";
-	m_gpc_model_path = "/home/wei/Documents/programs/surfelwarp/data/gpc_data/sintel_small_speed";
+	m_data_prefix = "/home/rvclab/dev/surfelwarp/test_data/boxing/data";
+	m_gpc_model_path = "/home/rvclab/dev/surfelwarp/test_data/sintel_small_speed";
 #endif
 }
 
@@ -110,10 +110,12 @@ void surfelwarp::ConfigParser::loadPathConfigFromJson(const void* json_ptr) {
 	//Check it
 	SURFELWARP_CHECK(config_json.find("data_prefix") != config_json.end());
 	SURFELWARP_CHECK(config_json.find("gpc_model_path") != config_json.end());
+	SURFELWARP_CHECK(config_json.find("save_path") != config_json.end());
 
 	//Load it
 	m_data_prefix = config_json["data_prefix"];
 	m_gpc_model_path = config_json["gpc_model_path"];
+	m_save_path = config_json["save_path"];
 }
 
 const boost::filesystem::path surfelwarp::ConfigParser::data_path() const
@@ -127,6 +129,9 @@ const boost::filesystem::path surfelwarp::ConfigParser::gpc_model_path() const {
 	return boost::filesystem::path(m_gpc_model_path);
 }
 
+const boost::filesystem::path surfelwarp::ConfigParser::save_path() const {
+	return boost::filesystem::path(m_save_path);
+}
 
 //The query about frame
 void surfelwarp::ConfigParser::setDefaultFrameIndex() {

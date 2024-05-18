@@ -197,7 +197,7 @@ void surfelwarp::SurfelWarpSerial::TestGeometryProcessing() {
 }
 
 
-void surfelwarp::SurfelWarpSerial::ProcessNextFrameNoReinit() {
+void surfelwarp::SurfelWarpSerial::ProcessNextFrameNoReinit(const ConfigParser& config) {
 	LOG(INFO) << "Current frame is " << m_frame_idx << " the updated geometry is " << m_updated_geometry_index;
 	
 	//Draw the required maps, assume the buffer is not mapped to cuda at input
@@ -387,7 +387,7 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameNoReinit() {
 	//Debug save
 	{
 		const auto with_recent = draw_recent;
-		const auto& save_dir = createOrGetDataDirectory(m_frame_idx);
+		const auto& save_dir = createOrGetDataDirectory(m_frame_idx, config.save_path());
 		saveCameraObservations(observation, save_dir);
 		saveSolverMaps(solver_maps, save_dir);
 

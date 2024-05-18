@@ -13,11 +13,7 @@ int main(int argc, char** argv) {
 	//Get the config path
 	std::string config_path;
 	if (argc <= 1) {
-#if defined(WIN32)
-		config_path = "C:/Users/wei/Documents/Visual Studio 2015/Projects/surfelwarp/test_data/boxing_config.json";
-#else
-		config_path = "/home/wei/Documents/programs/surfelwarp/test_data/boxing_config.json";
-#endif
+		config_path = "/home/rvclab/dev/surfelwarp/test_data/breathe_config.json";
 	} else {
 		config_path = std::string(argv[1]);
 	}
