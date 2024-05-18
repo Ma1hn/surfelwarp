@@ -354,7 +354,9 @@ void surfelwarp::GLOfflineVisualizationFrameRenderBufferObjects::save(const std:
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	
 	//Save it
-	cv::imwrite(path, rendered_map_cv);
+	cv::Mat flippedImage;
+	cv::flip(rendered_map_cv, flippedImage, 0);
+	cv::imwrite(path, flippedImage);
 }
 
 

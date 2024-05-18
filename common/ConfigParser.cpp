@@ -474,9 +474,15 @@ void surfelwarp::ConfigParser::loadOfflineRendering(const void* json_ptr){
 	//Recovery the json type
 	using json = nlohmann::json;
 	const auto& config_json = *((const json*)json_ptr);
+
 	if(config_json.find("offline_rendering") != config_json.end()){
 		m_offline_rendering = config_json["offline_rendering"];
 	}
+
+	if(config_json.find("show_online") != config_json.end()){
+		m_show_online = config_json["show_online"];
+	}
+
 	if(config_json.find("save_all") != config_json.end()){
 		if(config_json["save_all"] == true){
 			save_segment_mask = save_filter_depth_image = save_raw_depth_image = \
@@ -535,6 +541,10 @@ void surfelwarp::ConfigParser::saveOfflineRendering(void* json_ptr) const{
 
 bool surfelwarp::ConfigParser::isOfflineRendering() const{
 	return m_offline_rendering;
+}
+
+bool surfelwarp::ConfigParser::isShowOnline() const{
+	return m_show_online;
 }
 
 void surfelwarp::ConfigParser::setOfflineRendering(bool offline_rendering){

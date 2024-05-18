@@ -18,6 +18,7 @@
 //The header for correspondence
 #include "imgproc/correspondence/PatchColliderRGBCorrespondence.h"
 
+#include "visualization/Visualizer.h"
 #include <memory>
 
 

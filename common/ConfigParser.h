@@ -140,10 +140,12 @@ namespace surfelwarp {
 
 	private:
 		bool m_offline_rendering;
+		bool m_show_online;
 		void setDefaultOfflineRendering();
 		void loadOfflineRendering(const void* json_ptr);
 		void saveOfflineRendering(void* json_ptr) const;
 	public:
+		bool isShowOnline() const;
 		bool isOfflineRendering() const;
 		void setOfflineRendering(bool offline_rendering);
         // set public data member for convenience

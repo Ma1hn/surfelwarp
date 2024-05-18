@@ -50,7 +50,7 @@ void surfelwarp::Renderer::initGLFW() {
 	
 	//Defualt framebuffer properties
 	const auto & config = ConfigParser::Instance();
-	if (! config.isOfflineRendering()){
+	if (!config.isShowOnline()){
 		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 	}
 	glfwWindowHint(GLFW_SAMPLES, 1);

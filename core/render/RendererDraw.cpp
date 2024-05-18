@@ -187,10 +187,18 @@ void surfelwarp::Renderer::drawVisualizationMap(
 	//Use the provided vao
 	glBindVertexArray(geometry_vao);
 
+	const auto & config = ConfigParser::Instance();
 	//The size is image rows/cols
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_visualization_draw_buffers.visualization_map_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glViewport(0, 0, m_image_width, m_image_height);
+	if(config.isShowOnline()) {
+		// online rendering
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, m_image_width, m_image_height);
+	} else {
+		// offline rendering
+		glBindFramebuffer(GL_FRAMEBUFFER, m_visualization_draw_buffers.visualization_map_fbo);
+		glViewport(0, 0, m_image_width, m_image_height);
+	}
+	
 
 	//Clear the render buffer object
 	glClearBufferfv(GL_COLOR, 0, m_clear_values.visualize_rgba_clear);
@@ -264,8 +272,11 @@ void surfelwarp::Renderer::SaveLiveAlbedoMap(
 		with_recent
 	);
 	
-	//Save it
-	m_visualization_draw_buffers.save(path);
+	// Save it
+	// if online show is enabled, do not save the image, so if want to save the image, disable the online show, and enable offline show
+	if(!ConfigParser::Instance().isShowOnline()) {
+		m_visualization_draw_buffers.save(path);
+	}
 }
 
 
