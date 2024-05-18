@@ -1,6 +1,6 @@
 # [SurfelWarp](<https://sites.google.com/view/surfelwarp/home>)
 
-SurfelWarp is a dynamic reconstruction system similar to [DynamicFusion](https://www.youtube.com/watch?v=i1eZekcc_lM). Compared to other dynamic reconstruction methods, surfelwarp uses flat [surfel](https://en.wikipedia.org/wiki/Surfel) array (instead of volumetric field) as the geometry representation, which makes the pipeline robust and efficient. The approach is described in [our paper](https://arxiv.org/abs/1904.13073).
+SurfelWarp is a dynamic reconstruction pipeline. Compared to other dynamic reconstruction methods like [DynamicFusion](https://www.youtube.com/watch?v=i1eZekcc_lM), surfelwarp uses flat [surfel](https://en.wikipedia.org/wiki/Surfel) array (instead of volumetric field) as the geometry representation, which makes the pipeline robust and efficient. The approach is described in [our paper](https://arxiv.org/abs/1904.13073).
 
 ### Demo [[Video]](https://drive.google.com/open?id=1Qs-yM8RbkG4eJoMIs5y_WA_J1KMBLYCW)[[Presentation]](https://www.youtube.com/watch?v=fexYm61VGMA)
 
@@ -52,7 +52,7 @@ If everything goes well, the executable would produce the reconstructed result p
 
 - How to use my own data?
 
-  You might override the [FetchInterface](https://github.com/weigao95/surfelwarp/blob/master/imgproc/FetchInterface.h) and use it with [ImageProcessor](https://github.com/weigao95/surfelwarp/blob/master/imgproc/ImageProcessor.h). If you don't have performance requirement, you can also convert your data into the format of [VolumeDeform](https://www.lgdv.tf.fau.de/publicationen/volumedeform-real-time-volumetric-non-rigid-reconstruction/).
+  You might override the [FetchInterface](https://github.com/weigao95/surfelwarp/blob/master/imgproc/frameio/FetchInterface.h) and use it with [ImageProcessor](https://github.com/weigao95/surfelwarp/blob/master/imgproc/ImageProcessor.h). If you don't have performance requirement, you can also convert your data into the format of [VolumeDeform](https://www.lgdv.tf.fau.de/publicationen/volumedeform-real-time-volumetric-non-rigid-reconstruction/).
 
 - How to deal with topology change?
 
@@ -69,4 +69,4 @@ The code is re-factored and improved from the repo of our RSS paper. There are s
 
 ### Contact
 
-If you have any question or suggestion regarding this work, please send an email to weigao@mit.edu
+If you have any question or suggestion regarding this work, please send me an email.
