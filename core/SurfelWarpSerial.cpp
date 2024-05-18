@@ -87,7 +87,6 @@ surfelwarp::SurfelWarpSerial::~SurfelWarpSerial() {
 void surfelwarp::SurfelWarpSerial::ProcessFirstFrame() {
 	//Process it
 	const auto surfel_array = m_image_processor->ProcessFirstFrameSerial(m_frame_idx);
-	
 	//Build the reference and live nodes, color and init time
 	m_updated_geometry_index = 0;
 	m_renderer->MapSurfelGeometryToCuda(m_updated_geometry_index);
@@ -298,7 +297,6 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 		
 		//Do fusion
 		unsigned num_remaining_surfel, num_appended_surfel;
-		LOG(INFO)<<"here";
 		m_live_geometry_updater->ProcessFusionStreamed(num_remaining_surfel, num_appended_surfel);
 		
 		//Do a inverse warping
@@ -331,7 +329,7 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(const ConfigParser
 	TimeLogger::printTimeLog("free render");
 	
 	//Debug save
-	if(config.isOfflineRendering()) {
+	if(config.isOfflineRendering() || config.isShowOnline()) {
 		const auto with_recent = draw_recent || use_reinit;
 		const auto& save_dir = createOrGetDataDirectory(m_frame_idx, config.save_path());
 		saveCameraObservations(observation, save_dir);
