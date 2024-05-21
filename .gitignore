@@ -43,8 +43,8 @@
 test_data/*
 
 # The build files
-build/*
 debug/*
+build/*
 
 # The file for Visual studio, vs code, clion
 .vscode/*

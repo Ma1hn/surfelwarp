@@ -190,7 +190,6 @@ void surfelwarp::downloadTransferBinaryMeanfield(cudaTextureObject_t meanfield_q
 PointCloud3f_Pointer surfelwarp::downloadPointCloud(const surfelwarp::DeviceArray<float4>& vertex) {
 	PointCloud3f_Pointer point_cloud(new PointCloud3f);
 	std::vector<float4> h_vertex;
-	LOG(INFO)<<"before download";
 	vertex.download(h_vertex);
 	setPointCloudSize(point_cloud, vertex.size());
 	for (auto idx = 0; idx < vertex.size(); idx++) {

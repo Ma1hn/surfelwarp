@@ -13,6 +13,7 @@
 #include "imgproc/frameio/GenericFileFetch.h"
 #include "imgproc/frameio/VolumeDeformFileFetch.h"
 // #include "imgproc/frameio/AzureKinectDKFetch.h"
+#include "imgproc/frameio/RealsenseFectch.h"
 #include "visualization/Visualizer.h"
 
 #include <thread>
@@ -29,8 +30,8 @@ surfelwarp::SurfelWarpSerial::SurfelWarpSerial() {
 		fetcher = std::make_shared<GenericFileFetch>(config.data_path());
 	}else if(config.getIOMode() == "VolumeDeformFileFetch"){
 		fetcher = std::make_shared<VolumeDeformFileFetch>(config.data_path());
-	// }else if (config.getIOMode() == "kinect_dk"){
-	// 	fetcher = std::make_shared<AzureKinectDKFetch>(config.data_path(), config.isSaveOnlineFrame());
+	}else if (config.getIOMode() == "realsense"){
+		fetcher = std::make_shared<RealsenseFetch>(config.data_path(), config.isSaveOnlineFrame());
 	}else{
 		throw(std::runtime_error(config.getIOMode() + " io_mode not supported"));
 	}
@@ -427,7 +428,6 @@ void surfelwarp::SurfelWarpSerial::saveSolverMaps(
 	}
 }
 
-
 void surfelwarp::SurfelWarpSerial::saveVisualizationMaps(
 	unsigned int num_vertex,
 	int vao_idx,
@@ -451,6 +451,7 @@ void surfelwarp::SurfelWarpSerial::saveVisualizationMaps(
 	if (config.save_reference_phong_map)
 		m_renderer->SaveReferencePhongMap (num_vertex, vao_idx, m_frame_idx, init_world2camera, (save_dir /  "reference_phong.png").string(), with_recent);
 }
+
 
 boost::filesystem::path surfelwarp::SurfelWarpSerial::createOrGetDataDirectory(int frame_idx, boost::filesystem::path save_path) {
 	//Construct the path

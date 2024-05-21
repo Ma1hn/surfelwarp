@@ -151,7 +151,6 @@ void surfelwarp::LiveGeometryUpdater::ProcessAppendedSurfels(cudaStream_t stream
 	
 	//Do processing
 	//m_appended_surfel_processor->BuildVertexForFiniteDifference(stream);
-	LOG(INFO)<<"here";
 	m_appended_surfel_processor->BuildSurfelAndFiniteDiffVertex(stream);
 	m_appended_surfel_processor->SkinningFiniteDifferenceVertex(stream);
 	m_appended_surfel_processor->FilterCandidateSurfels(stream);
@@ -224,7 +223,6 @@ void surfelwarp::LiveGeometryUpdater::ProcessFusionStreamed(unsigned &num_remain
 	cudaSafeCall(cudaStreamSynchronize(m_fusion_stream[1]));
 	
 	//These two parallel
-	LOG(INFO)<<"here";
 	ProcessAppendedSurfels(m_fusion_stream[1]);
 	MarkRemainingSurfels(m_fusion_stream[0]);
 	

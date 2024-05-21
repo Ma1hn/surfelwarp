@@ -8,6 +8,7 @@ target_link_libraries(imgproc_lib common_lib)
 target_link_libraries(imgproc_lib ${OpenCV_LIBS})
 target_link_libraries(imgproc_lib ${Boost_FILESYSTEM_LIBRARY})
 # target_link_libraries(imgproc_lib k4a::k4a) 
+target_link_libraries(imgproc_lib ${realsense2_LIBRARY})
 
 #The subdirectory contains code for segmentation
 add_subdirectory(segmentation)

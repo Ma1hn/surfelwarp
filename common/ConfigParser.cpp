@@ -37,12 +37,12 @@ void surfelwarp::ConfigParser::ParseConfig(const std::string & config_path) {
 	//The path from json, these are requested
 	loadPathConfigFromJson((const void*)&config_json);
 	loadFrameIndexFromJson((const void*)&config_json);
+	loadIOModeFromJson((const void*)&config_json);
 	loadPeroidsValueFromJson((const void*)&config_json);
 	loadImageSizeFromJson((const void*)&config_json);
 	loadClipValueFromJson((const void*)&config_json);
 	loadCameraIntrinsicFromJson((const void*)&config_json);
 	loadPenaltyConfigFromJson((const void*)&config_json);
-	loadIOModeFromJson((const void*)&config_json);
 	loadSaveOnlineFrame((const void*)&config_json);
 	loadOfflineRendering((const void*)&config_json);
 }
@@ -319,8 +319,7 @@ void surfelwarp::ConfigParser::loadCameraIntrinsicFromJson(const void *json_ptr)
 		SURFELWARP_CHECK(config_json.find(key) != config_json.end());
 		value = config_json[key];
 	};
-	
-	
+
 	check_and_load("depth_focal_x", raw_depth_intrinsic.focal_x);
 	check_and_load("depth_focal_y", raw_depth_intrinsic.focal_y);
 	check_and_load("depth_principal_x", raw_depth_intrinsic.principal_x);
@@ -330,11 +329,11 @@ void surfelwarp::ConfigParser::loadCameraIntrinsicFromJson(const void *json_ptr)
 	check_and_load("rgb_focal_y", raw_rgb_intrinsic.focal_y);
 	check_and_load("rgb_principal_x", raw_rgb_intrinsic.principal_x);
 	check_and_load("rgb_principal_y", raw_rgb_intrinsic.principal_y);
-	
 	//The clip intrinsic
 	const float principal_x_clip = raw_rgb_intrinsic.principal_x - boundary_clip;
 	const float principal_y_clip = raw_rgb_intrinsic.principal_y - boundary_clip;
 	clip_rgb_intrinsic = Intrinsic(raw_rgb_intrinsic.focal_x, raw_rgb_intrinsic.focal_y, principal_x_clip, principal_y_clip);
+
 }
 
 

@@ -8,10 +8,9 @@ if(DEFINED CMAKE_BUILD_TYPE)
     SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
 ENDIF()
 
-# add_definitions(-DCUDA_DEBUG_SYNC_CHECK)
 
 # Add cmake module path
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+# set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # Language options
 set(CMAKE_CXX_STANDARD 11)
@@ -41,6 +40,9 @@ find_package(glfw3 REQUIRED)
 
 # k4a package: for Azure Kinect DK
 # find_package(k4a)
+
+# realsense2 package: for Intel RealSense
+find_package(realsense2 REQUIRED)
 
 # The library and compiler flags on Windows
 if(MSVC)
@@ -78,11 +80,13 @@ endif(MSVC)
 # The library and compiler flags on Ubuntu
 if(UNIX)
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        message("--release type")
+        message("-- Release type")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall")
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --use_fast_math")
-    else()
-        message("--debug type")
+    else() 
+        message("-- Debug type")
+        add_definitions(-DDEBUG)
+        add_definitions(-DCUDA_DEBUG_SYNC_CHECK)
         #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -g -G")
