@@ -1,0 +1,23 @@
+{
+    "io_mode": "realsense",
+    "save_online_frame": false,
+    "clip_far":1300,
+    "clip_near":10,
+    "data_prefix":"/home/rvclab/dev/surfelwarp/test_data/realsense1",
+    "gpc_model_path":"/home/rvclab/dev/surfelwarp/test_data/sintel_small_speed",
+    "image_cols":640,"image_rows":480,
+    "start_frame":0,
+    "num_frame":900,
+    "depth_focal_x":387.995,"depth_focal_y":387.995,"depth_principal_x":322.897,"depth_principal_y":236.278,
+    "rgb_focal_x":387.995,"rgb_focal_y":387.995,"rgb_principal_x":322.897,"rgb_principal_y":236.278,
+    "use_periodic_reinit":true,
+    "reinit_period":30,
+    "use_density":true,
+    "use_foreground":false,
+    "use_offline_foreground":false,
+    "offline_rendering": false,
+    "show_online": true,
+    "save_live_albedo_map": true,
+    "save_se3": false,
+    "save_path": "/home/rvclab/dev/surfelwarp/result/realsense1"
+}
