@@ -47,21 +47,20 @@ m_disparity_to_depth(false)
     m_spatial_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 20);
     m_temporal_filter.set_option(RS2_OPTION_FILTER_SMOOTH_ALPHA, 1);
     m_temporal_filter.set_option(RS2_OPTION_FILTER_SMOOTH_DELTA, 40);
-
-    
+    m_dec_filter.set_option(RS2_OPTION_FILTER_MAGNITUDE, config.downsample_scale());
     
 
     #if defined(DEBUG)
         auto streams = m_pipe.get_active_profile().get_streams();
         for(const auto& stream : streams) {
             if(stream.stream_type() == RS2_STREAM_COLOR) {
-                m_intrinsics = stream.as<rs2::video_stream_profile>().get_intrinsics();
-                std::cout<<"intrinsics.focal_x: "<<m_intrinsics.fx << std::endl;
-                std::cout<<"intrinsics.focal_y: " << m_intrinsics.fy << std::endl;
-                std::cout<<"intrinsics.image_height: " << m_intrinsics.height << std::endl;
-                std::cout<<"intrinsics.image_width: " << m_intrinsics.width <<std::endl;
-                std::cout<<"intrinsics.principal_x: " << m_intrinsics.ppx << std::endl;
-                std::cout<<"intrinsics.principal_y: " << m_intrinsics.ppy << std::endl;
+                m_rgb_intrinsics = stream.as<rs2::video_stream_profile>().get_intrinsics();
+                std::cout<<"rgb_intrinsics.focal_x: "<<m_rgb_intrinsics.fx << std::endl;
+                std::cout<<"rgb_intrinsics.focal_y: " << m_rgb_intrinsics.fy << std::endl;
+                std::cout<<"rgb_intrinsics.image_height: " << m_rgb_intrinsics.height << std::endl;
+                std::cout<<"rgb_intrinsics.image_width: " << m_rgb_intrinsics.width <<std::endl;
+                std::cout<<"rgb_intrinsics.principal_x: " << m_rgb_intrinsics.ppx << std::endl;
+                std::cout<<"rgb_intrinsics.principal_y: " << m_rgb_intrinsics.ppy << std::endl;
             }
         }
     #endif
@@ -83,7 +82,7 @@ surfelwarp::RealsenseFetch::~RealsenseFetch()
 void surfelwarp::RealsenseFetch::FetchDepthImage(size_t frame_idx, cv::Mat& depth_img)
 {
     grab_frame();
-    depth_img = m_depth_image_vec[frame_idx];
+    depth_img = m_depth_image;
 }
 
 void surfelwarp::RealsenseFetch::FetchDepthImage(size_t frame_idx, void *depth_img)
@@ -93,7 +92,7 @@ void surfelwarp::RealsenseFetch::FetchDepthImage(size_t frame_idx, void *depth_i
 void surfelwarp::RealsenseFetch::FetchRGBImage(size_t frame_idx, cv::Mat& rgb_img)
 {
     grab_frame();
-    rgb_img = m_color_image_vec[frame_idx];
+    rgb_img = m_depth_image;
 }
 
 void surfelwarp::RealsenseFetch::FetchRGBImage(size_t frame_idx, void *rgb_img)
@@ -105,8 +104,6 @@ void surfelwarp::RealsenseFetch::FetchDepthAndRGBImage(size_t frame_idx, cv::Mat
     grab_frame();
     rgb_img = m_color_image;
     depth_img = m_depth_image;
-
-
 }
 
 void surfelwarp::RealsenseFetch::grab_frame() {
@@ -119,28 +116,34 @@ void surfelwarp::RealsenseFetch::grab_frame() {
         frameset = align2color.process(frameset);
         
         // 获取对齐后的深度帧和彩色帧
-        auto depth = frameset.get_depth_frame()
-                    .apply_filter(m_depth_to_disparity)
-                    .apply_filter(m_spatial_filter)
-                    .apply_filter(m_temporal_filter)
-                    .apply_filter(m_disparity_to_depth);
-        auto color = frameset.get_color_frame();
+        m_depth_frame = frameset.get_depth_frame()
+                        .apply_filter(m_dec_filter)
+                        .apply_filter(m_depth_to_disparity)
+                        .apply_filter(m_spatial_filter)
+                        .apply_filter(m_temporal_filter)
+                        .apply_filter(m_disparity_to_depth);
+        
+        m_color_frame = frameset.get_color_frame();
         
         // 确保深度帧和彩色帧不为空
-        if (!depth || !color) {
+        if (!m_depth_frame || !m_color_frame) {
             throw std::runtime_error("Failed to get frames from RealSense camera.");
-        }
+        } 
         
         // 将深度帧和彩色帧转换为 OpenCV 矩阵
-        m_depth_image = cv::Mat(cv::Size(640, 480), CV_16UC1, (void*)depth.get_data(), cv::Mat::AUTO_STEP);
-        m_color_image = cv::Mat(cv::Size(640, 480), CV_8UC3, (void*)color.get_data(), cv::Mat::AUTO_STEP);
-        
+        m_color_image = cv::Mat(cv::Size(640, 480), CV_8UC3, (void*)m_color_frame.get_data(), cv::Mat::AUTO_STEP);
+        if (config.use_downsample()) {
+            m_depth_image = cv::Mat(cv::Size(320, 240), CV_16UC1, (void*)m_depth_frame.get_data(), cv::Mat::AUTO_STEP);
+            DownSampleImage();
+        } else {
+            m_depth_image = cv::Mat(cv::Size(640, 480), CV_16UC1, (void*)m_depth_frame.get_data(), cv::Mat::AUTO_STEP);
+        }   
         
         // 打印矩阵信息用于调试
-        #if defined(DEBUG)
-            LOG(INFO)<<"Depth image: " << m_depth_image.size() << " " << m_depth_image.type();
-            LOG(INFO)<<"Color image: " << m_color_image.size() << " " << m_color_image.type();
-        #endif
+        // #if defined(DEBUG)
+        //     LOG(INFO)<<"Depth image: " << m_depth_image.size() << " " << m_depth_image.type();
+        //     LOG(INFO)<<"Color image: " << m_color_image_downsampled.size() << " " << m_color_image.type();
+        // #endif
         
         // 克隆矩阵并添加到相应的向量中，确保每次添加的是独立的副本
         m_depth_image_vec.push_back(m_depth_image.clone());
@@ -168,4 +171,13 @@ void surfelwarp::RealsenseFetch::grab_frame() {
         std::cerr << "Unknown exception occurred." << std::endl;
         throw;
     }
+}
+
+// 彩色图像降采样
+void surfelwarp::RealsenseFetch::DownSampleImage() {
+    d_color_src = cv::cuda::createContinuous( m_rgb_intrinsics.height,  m_rgb_intrinsics.width, CV_8UC3);
+    d_color_src.upload(m_color_image);
+    m_color_image.release();
+    cv::cuda::pyrDown(d_color_src, d_color_downsampled);
+    d_color_downsampled.download(m_color_image);
 }

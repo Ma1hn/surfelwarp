@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Cuda
-find_package(CUDA 11 REQUIRED)
+find_package(CUDA 12 REQUIRED)
 include_directories(${CUDA_INCLUDE_DIRS})
 set(CUDA_ARCH "50 through 61" CACHE STRING "Architecture(s) for which to generate CUDA PTX code")
 if(CUDA_VERSION_MAJOR LESS 10)
@@ -81,7 +81,7 @@ endif(MSVC)
 if(UNIX)
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         message("-- Release type")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -mavx -mavx2 -mfma -mfpmath=both")
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} --use_fast_math")
     else() 
         message("-- Debug type")
@@ -140,7 +140,7 @@ if(${CUDA_VERSION_MAJOR} LESS 11)
 endif()
 
 # OpenCV lib: this version uses the customized build
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4.10.0 REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIR})
 
 # The boost library is contained in pcl

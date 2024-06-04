@@ -40,7 +40,7 @@
 *.fatbin
 
 # The data path
-test_data/*
+test_data/dataset/*
 
 # The build files
 debug/*

@@ -15,7 +15,11 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include <boost/filesystem.hpp>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/pcl_visualizer.h>
 
+using namespace surfelwarp;
 
 int holes_fill = 1;
 int filter_magnitude = 3;
@@ -25,64 +29,8 @@ int holes_fill_filter = 0;
 
 void on_trackbar(int, void*) {}
 
-void testBoundary() {
-
-	using namespace surfelwarp;
-	//Parpare the test data
-	std::string config_path;
-	config_path = "/home/rvclab/dev/surfelwarp/test_data/realsense_config.json";
-	auto& config = ConfigParser::Instance();
-	config.ParseConfig(config_path);
-
-	//First test fetching
-	FetchInterface::Ptr fetcher = std::make_shared<RealsenseFetch>(config.data_path(), config.isSaveOnlineFrame());
-	ImageProcessor::Ptr processor = std::make_shared<ImageProcessor>(fetcher);
-	
-	while(true) 
-	{
-		cv::Mat depth_img, rgb_img;
-		fetcher->FetchDepthAndRGBImage(0, depth_img, rgb_img);
-		depth_img.convertTo(depth_img, CV_8UC1, 255.0 / 4000); // 假设深度范围是0-10000mm
-		cv::Mat depth_colormap;
-		cv::applyColorMap(depth_img, depth_colormap, cv::COLORMAP_JET);
-		cv::namedWindow("depth", cv::WINDOW_AUTOSIZE);
-		cv::namedWindow("rgb", cv::WINDOW_AUTOSIZE);
-		cv::imshow("depth", depth_colormap);
-		cv::imshow("rgb", rgb_img);
-		if(cv::waitKey(1) == 27) {
-			break;
-		}
-	}
-
-	// 图像处理结果的可视化
-	// CameraObservation observation;
-	// for(int i = 0; i<config.num_frames(); i++) {
-	// 	LOG(INFO) << "The " << i << "th Frame";
-	// 	processor->ProcessFrameStreamed(observation, i);
-		// cv::Mat depth_img, rgb_img;
-		// fetcher->FetchDepthAndRGBImage(0, depth_img, rgb_img);
-		// cv::namedWindow("depth", cv::WINDOW_AUTOSIZE);
-		// cv::namedWindow("rgb", cv::WINDOW_AUTOSIZE);
-		// cv::imshow("depth", depth_img);
-		// cv::imshow("rgb", rgb_img);
-		// if(cv::waitKey(1) == 27) {
-		// 	break;
-		// }
-		
-		
-		// auto draw_func = [&]() {
-		//Visualizer::DrawPointCloud(observation.vertex_confid_map);
-		// Visualizer::DrawSegmentMask(observation.foreground_mask, observation.normalized_rgba_map, 1);
-		// //Visualizer::DrawGrayScaleImage(observation.filter_foreground_mask);
-		// };
-
-		// std::thread draw_thread(draw_func);
-		// draw_thread.join();
-	// }
-}
-
 // 测试滤波器
-void test()
+void testFilter()
 {
 	rs2::pipeline pipe;
 	rs2::config cfg;
@@ -151,9 +99,159 @@ void test()
 
 }
 
-int main() 
-{
-	testBoundary();
-	// test();
+void keyboardEventOccurred_test(const pcl::visualization::KeyboardEvent& event, void* viewer_void) {
+    pcl::visualization::PCLVisualizer* viewer = static_cast<pcl::visualization::PCLVisualizer*>(viewer_void);
+    if (event.getKeySym() == "q" && event.keyDown()) {
+        viewer->close();
+    }
+}
+
+void testIntrinsic(FetchInterface::Ptr fetcher, Intrinsic& rgb_intrinsic, pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud) {
+	ConfigParser& config = ConfigParser::Instance();
+	cv::Mat depth_img, rgb_img;
+	for(int i = 0; i<config.num_frames(); i++) {
+		LOG(INFO) << "The " << i << "th Frame";		
+		fetcher->FetchDepthAndRGBImage(i, depth_img, rgb_img);
+		float fx = rgb_intrinsic.focal_x;
+		float fy = rgb_intrinsic.focal_y;
+		float cx = rgb_intrinsic.principal_x;
+		float cy = rgb_intrinsic.principal_y;
+		LOG(INFO)<<"fx: " << fx << " fy: " << fy << " cx: " << cx << " cy: " << cy;
+		LOG(INFO)<< "depth_img rows: " << depth_img.rows << " depth_img cols: " << depth_img.cols;
+		float depth_scale = 0.001;
+		for(int row = 0; row < depth_img.rows; row++) {
+			for(int col = 0; col < depth_img.cols; col++) {
+				float z = depth_img.at<ushort>(row, col) * depth_scale;
+				if(z <= 0) continue;
+
+				float x = (col - cx) * z / fx;
+				float y = (row - cy) * z / fy;
+
+				pcl::PointXYZRGB point;
+				point.x = x;
+				point.y = y;
+				point.z = z;
+				point.r = rgb_img.at<cv::Vec3b>(row, col)[2];
+				point.g = rgb_img.at<cv::Vec3b>(row, col)[1];
+				point.b = rgb_img.at<cv::Vec3b>(row, col)[0];
+
+				cloud->points.push_back(point);
+		}
+	}
+	LOG(INFO)<<"size of cloud: " << cloud->size();
+
+	pcl::visualization::PCLVisualizer viewer("viewer");
+	viewer.addPointCloud<pcl::PointXYZRGB>(cloud);
+	viewer.addCoordinateSystem(0.5);
+
+	viewer.registerKeyboardCallback(keyboardEventOccurred_test, (void*)&viewer);
+	while (!viewer.wasStopped())
+	{
+		viewer.spinOnce(100);
+	}
+	cloud->clear();
+	}
 	
+}
+
+//  测试获取图像，无限帧
+void test_infinite(FetchInterface::Ptr fetcher) {
+	while(true) 
+	{
+		cv::Mat depth_img, rgb_img;
+		fetcher->FetchDepthAndRGBImage(0, depth_img, rgb_img);
+		depth_img.convertTo(depth_img, CV_8UC1, 255.0 / 4000); // 假设深度范围是0-10000mm
+		cv::Mat depth_colormap;
+		cv::applyColorMap(depth_img, depth_colormap, cv::COLORMAP_JET);
+		cv::namedWindow("depth", cv::WINDOW_AUTOSIZE);
+		cv::namedWindow("rgb", cv::WINDOW_AUTOSIZE);
+		cv::imshow("depth", depth_colormap);
+		cv::imshow("rgb", rgb_img);
+		if(cv::waitKey(1) == 27) {
+			break;
+		}
+	}
+}
+
+// 测试获取图像，有限帧
+void test_finite(FetchInterface::Ptr fetcher, ConfigParser& config) {
+	for(int i = 0; i<config.num_frames(); i++) {
+		LOG(INFO) << "The " << i << "th Frame";
+		cv::Mat depth_img, rgb_img;
+		fetcher->FetchDepthAndRGBImage(i, depth_img, rgb_img);
+		depth_img.convertTo(depth_img, CV_8UC1, 255.0 / 4000); // 假设深度范围是0-10000mm
+		cv::Mat depth_colormap;
+		cv::applyColorMap(depth_img, depth_colormap, cv::COLORMAP_JET);
+		cv::namedWindow("depth", cv::WINDOW_AUTOSIZE);
+		cv::namedWindow("rgb", cv::WINDOW_AUTOSIZE);
+		cv::imshow("depth", depth_colormap);
+		cv::imshow("rgb", rgb_img);
+		if(cv::waitKey(1) == 27) {
+			break;
+		}
+	}
+}
+
+void test_imgproc(std::string& config_path) {
+	//Parpare the test data
+	
+	auto& config = ConfigParser::Instance();
+	config.ParseConfig(config_path);
+
+	//First test fetching
+	FetchInterface::Ptr fetcher;
+	if(config.getIOMode() == "GenericFileFetch") {
+		fetcher = std::make_shared<GenericFileFetch>(config.data_path());
+	}else if(config.getIOMode() == "VolumeDeformFileFetch"){
+		fetcher = std::make_shared<VolumeDeformFileFetch>(config.data_path());
+	}else if (config.getIOMode() == "realsense"){
+		fetcher = std::make_shared<RealsenseFetch>(config.data_path(), config.isSaveOnlineFrame());
+	}else{
+		throw(std::runtime_error(config.getIOMode() + " io_mode not supported"));
+	}
+
+	ImageProcessor::Ptr processor = std::make_shared<ImageProcessor>(fetcher);
+	Intrinsic rgb_intrinsic = config.rgb_intrinsic_raw();
+	LOG(INFO)<< "image rows: " << config.raw_image_rows() << " image cols: " << config.raw_image_cols() << " fy: " << rgb_intrinsic.focal_y << " fx: " << rgb_intrinsic.focal_x << " cx: " << rgb_intrinsic.principal_x << " cy: " << rgb_intrinsic.principal_y;
+
+	// 测试点云生成
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+	cloud->width = config.raw_image_cols() * config.raw_image_rows();
+	cloud->height = 1;
+	
+	// test_infinite(fetcher);
+	// test_finite(fetcher, config);
+	// testIntrinsic(fetcher, rgb_intrinsic, cloud);
+	
+	// 图像处理结果显示， 可视化点云与分割结果
+	CameraObservation observation;
+	for(int i = 0; i<config.num_frames(); i++) {
+		LOG(INFO) << "The " << i << "th Frame";
+		processor->ProcessFrameStreamed(observation, i);
+		
+	// 	/* auto draw_func = [&]() {
+	// 	Visualizer::DrawColoredPointCloud(observation.vertex_confid_map, observation.normalized_rgba_map);
+	// 	// Visualizer::DrawNormalizeRGBImage(observation.normalized_rgba_map);
+	// 	// Visualizer::DrawSegmentMask(observation.foreground_mask, observation.normalized_rgba_map, 1);
+	// 	//Visualizer::DrawGrayScaleImage(observation.filter_foreground_mask);
+	// 	};
+
+	// 	std::thread draw_thread(draw_func);
+	// 	draw_thread.join(); */
+		Visualizer::DrawColoredPointCloud(observation.vertex_confid_map, observation.normalized_rgba_map);
+		Visualizer::DrawSegmentMask(observation.foreground_mask, observation.normalized_rgba_map, 1);
+
+	}
+}
+
+int main(int argc, char** argv) 
+{
+	std::string config_path;
+	if(argc == 2) {
+		config_path = argv[1];
+	} else {
+		config_path = "/home/rvclab/dev/surfelwarp/test_data/realsense_config.json";
+	}
+	test_imgproc(config_path);
+	// testFilter();	
 }

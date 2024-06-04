@@ -98,21 +98,29 @@ namespace surfelwarp {
 		Intrinsic raw_depth_intrinsic;
 		Intrinsic raw_rgb_intrinsic;
 		Intrinsic clip_rgb_intrinsic;
+		const int m_downsample_scale = 2;	
+		bool m_use_downsample;
 		void setDefaultCameraIntrinsic();
 		void saveCameraIntrinsicToJson(void* json_ptr) const;
 		void loadCameraIntrinsicFromJson(const void* json_ptr);
+		void loadDownSample(const void* json_ptr);
 	public:
 		Intrinsic depth_intrinsic_raw() const;
 		Intrinsic rgb_intrinsic_raw() const;
 		Intrinsic rgb_intrinsic_clip() const;
 		mat34 depth2rgb_dev() const;
+		bool use_downsample() const { return m_use_downsample; }
+		int downsample_scale() const { return m_downsample_scale; }
 
 		
-		//A various of configs for penalty constants
+		// A various of configs for penalty constants
+		// m_use_segmentation: whether to use segmentation
 	private:
+		
 		bool m_use_density_term;
 		bool m_use_foreground_term;
 		bool m_use_offline_foreground;
+		bool m_use_segmentation;
 		void setDefaultPenaltyConfigs();
 		void savePenaltyConfigToJson(void* json_ptr) const;
 		void loadPenaltyConfigFromJson(const void* json_ptr);
@@ -120,9 +128,10 @@ namespace surfelwarp {
 		bool use_foreground_term() const;
 		bool use_offline_foreground_segmneter() const;
 		bool use_density_term() const;
+		bool use_segmentation() const;
 		
 
-		// add `io_mode` for kinectdk,
+		// add `io_mode` for kinectdk, and realsense
 		// default: io_mode = "local_file", surfelwarp_app will run on this io_mode, 
 		//          where imiages are read from local file
 		// for kinectdk: io_mode = "kinect_dk", surfelwarp_kinectdk will run on this io_mode, 

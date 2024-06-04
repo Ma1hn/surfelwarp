@@ -26,6 +26,7 @@ namespace surfelwarp
         void FetchRGBImage(size_t frame_idx, cv::Mat& rgb_img) override;
         void FetchRGBImage(size_t frame_idx, void* rgb_img) override;
         void FetchDepthAndRGBImage(size_t frame_idx, cv::Mat& depth_img, cv::Mat& rgb_img) override;
+        void DownSampleImage() override;
 
         void grab_frame();
 
@@ -36,18 +37,19 @@ namespace surfelwarp
         rs2::spatial_filter m_spatial_filter;
         rs2::temporal_filter m_temporal_filter;
         rs2::hdr_merge m_hdr_merge_filter;
+        rs2::decimation_filter m_dec_filter;
         rs2::disparity_transform m_depth_to_disparity;
 	    rs2::disparity_transform m_disparity_to_depth;
-        rs2_intrinsics m_intrinsics;
+        rs2_intrinsics m_rgb_intrinsics;
         rs2::pipeline_profile m_profile;
+        rs2::frame m_depth_frame;
+        rs2::frame m_color_frame;
         
         // images 
 		cv::Mat m_depth_image;
-		cv::Mat m_color_image_rgba;
-		cv::Mat m_color_image_rgb;
 		cv::Mat m_color_image;
-		cv::Mat m_depth_image_undistorted;
-		cv::Mat m_color_image_undistorted;
+        cv::cuda::GpuMat d_color_src;
+        cv::cuda::GpuMat d_color_downsampled;
 
         // undistort
 		cv::Mat m_camera_matrix;
@@ -69,6 +71,6 @@ namespace surfelwarp
         path save_folder;
         
         // scale factor
-        float m_scale_factor = 3.2f;
+        ConfigParser& config = ConfigParser::Instance();
     };
 }

@@ -437,6 +437,7 @@ void surfelwarp::ImageProcessor::releaseGeometryTexture()
 void surfelwarp::ImageProcessor::BuildVertexConfigMap(cudaStream_t stream)
 {
 	const IntrinsicInverse clip_intrinsic_inv = inverse(m_clip_rgb_intrinsic);
+	
 	createVertexConfigMap(
 		m_depth_filter_collect.texture,
 		m_clip_img_rows, m_clip_img_cols,
@@ -540,8 +541,13 @@ void surfelwarp::ImageProcessor::CollectValidDepthSurfel(cudaStream_t stream)
 void surfelwarp::ImageProcessor::allocateForegroundSegmentationBuffer() {
 	//Create the segmenter
 	const auto& config = ConfigParser::Instance();
-	if(config.use_offline_foreground_segmneter()) {
-		LOG(INFO) << "Use pre-computed segmentation mask";
+	if(config.use_offline_foreground_segmneter() || !config.use_segmentation()) {
+		// provide pre-computed segmentation mask or disable segmentation
+		if (!config.use_segmentation()) {
+			LOG(INFO) << "Disable segmentation";
+		} else {
+			LOG(INFO) << "Use pre-computed segmentation mask";
+		}
 		m_foreground_segmenter = std::make_shared<ForegroundSegmenterOffline>();
 	}
 	else {
@@ -560,11 +566,10 @@ void surfelwarp::ImageProcessor::releaseForegroundSegmentationBuffer() {
 void surfelwarp::ImageProcessor::SegmentForeground(int frame_idx, cudaStream_t stream) {
 	//Hand on the input to the segmenter
 	m_foreground_segmenter->SetInputImages(
-		m_clip_normalize_rgb_collect.texture,
-		m_depth_raw_collect.texture,
-		m_depth_filter_collect.texture,
-		frame_idx
-	);
+	m_clip_normalize_rgb_collect.texture,
+	m_depth_raw_collect.texture,
+	m_depth_filter_collect.texture,
+	frame_idx);
 	
 	//Invoke it
 	m_foreground_segmenter->Segment(stream);

@@ -1,6 +1,9 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include <memory>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudawarping.hpp>
+
 
 namespace surfelwarp {
 	
@@ -32,6 +35,8 @@ namespace surfelwarp {
 		virtual void FetchRGBImage(size_t frame_idx, void* rgb_img) = 0;
 
 		virtual void FetchDepthAndRGBImage(size_t frame_idx, cv::Mat& depth_img, cv::Mat& rgb_img) = 0;
+
+		virtual void DownSampleImage() = 0;
 	};
 
 }

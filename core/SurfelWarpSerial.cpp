@@ -92,14 +92,14 @@ void surfelwarp::SurfelWarpSerial::ProcessFirstFrame() {
 	m_updated_geometry_index = 0;
 	m_renderer->MapSurfelGeometryToCuda(m_updated_geometry_index);
 	m_geometry_initializer->InitFromObservationSerial(*m_surfel_geometry[m_updated_geometry_index], surfel_array);
-	
+
 	//Build the reference vertex and SE3 for the warp field
 	const auto reference_vertex = m_surfel_geometry[m_updated_geometry_index]->GetReferenceVertexConfidence();
 	m_warpfield_initializer->InitializeReferenceNodeAndSE3FromVertex(reference_vertex, m_warp_field);
 	
 	//Build the index and skinning nodes and surfels
 	m_warp_field->BuildNodeGraph();
-	
+
 	//Perform skinning
 	const auto& reference_nodes = m_warp_field->ReferenceNodeCoordinates();
 	m_reference_knn_skinner->BuildInitialSkinningIndex(reference_nodes);

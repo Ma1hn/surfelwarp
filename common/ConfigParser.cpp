@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "ConfigParser.h"
 
 surfelwarp::ConfigParser::ConfigParser() {
 	setDefaultParameters();
@@ -37,6 +38,7 @@ void surfelwarp::ConfigParser::ParseConfig(const std::string & config_path) {
 	//The path from json, these are requested
 	loadPathConfigFromJson((const void*)&config_json);
 	loadFrameIndexFromJson((const void*)&config_json);
+	loadDownSample((const void*)&config_json);
 	loadIOModeFromJson((const void*)&config_json);
 	loadPeroidsValueFromJson((const void*)&config_json);
 	loadImageSizeFromJson((const void*)&config_json);
@@ -240,6 +242,12 @@ void surfelwarp::ConfigParser::loadImageSizeFromJson(const void *json_ptr) {
 	
 	m_raw_image_rows = config_json["image_rows"];
 	m_raw_image_cols = config_json["image_cols"];
+
+	if(m_downsample_scale != 1){
+		m_raw_image_rows = m_raw_image_rows / m_downsample_scale;
+		m_raw_image_cols = m_raw_image_cols / m_downsample_scale;
+	}
+
 	m_clip_image_rows = m_raw_image_rows - 2 * boundary_clip;
 	m_clip_image_cols = m_raw_image_cols - 2 * boundary_clip;
 }
@@ -329,6 +337,20 @@ void surfelwarp::ConfigParser::loadCameraIntrinsicFromJson(const void *json_ptr)
 	check_and_load("rgb_focal_y", raw_rgb_intrinsic.focal_y);
 	check_and_load("rgb_principal_x", raw_rgb_intrinsic.principal_x);
 	check_and_load("rgb_principal_y", raw_rgb_intrinsic.principal_y);
+
+	if (m_use_downsample) {
+		LOG(INFO)<<"use downsample, downsample scale:2.0, modifying the intrinsic parameters";
+		raw_depth_intrinsic.focal_x /= m_downsample_scale;
+		raw_depth_intrinsic.focal_y /= m_downsample_scale;
+		raw_depth_intrinsic.principal_x /= m_downsample_scale;
+		raw_depth_intrinsic.principal_y /= m_downsample_scale;
+
+		raw_rgb_intrinsic.focal_x /= m_downsample_scale;
+		raw_rgb_intrinsic.focal_y /= m_downsample_scale;
+		raw_rgb_intrinsic.principal_x /= m_downsample_scale;
+		raw_rgb_intrinsic.principal_y /= m_downsample_scale;
+	}
+
 	//The clip intrinsic
 	const float principal_x_clip = raw_rgb_intrinsic.principal_x - boundary_clip;
 	const float principal_y_clip = raw_rgb_intrinsic.principal_y - boundary_clip;
@@ -394,6 +416,7 @@ void surfelwarp::ConfigParser::loadPenaltyConfigFromJson(const void *json_ptr) {
 	check_and_load(m_use_density_term, "use_density", false);
 	check_and_load(m_use_foreground_term, "use_foreground", true);
 	check_and_load(m_use_offline_foreground, "use_offline_foreground", false);
+	check_and_load(m_use_segmentation, "use_segmentation", true);
 }
 
 bool surfelwarp::ConfigParser::use_foreground_term() const {
@@ -408,8 +431,13 @@ bool surfelwarp::ConfigParser::use_density_term() const {
 	return m_use_density_term;
 }
 
-void surfelwarp::ConfigParser::setDefaultIOMode() {
-	m_io_mode = "GenericFileFetch";
+bool surfelwarp::ConfigParser::use_segmentation() const
+{
+    return m_use_segmentation;
+}
+void surfelwarp::ConfigParser::setDefaultIOMode()
+{
+    m_io_mode = "GenericFileFetch";
 }
 
 std::string surfelwarp::ConfigParser::getIOMode() const {
@@ -445,6 +473,16 @@ void surfelwarp::ConfigParser::loadSaveOnlineFrame(const void* json_ptr){
 		m_save_online_frame = config_json["save_online_frame"];
 	}
 }
+
+void surfelwarp::ConfigParser::loadDownSample(const void* json_ptr) {
+	using json = nlohmann::json;
+	const auto& config_json = *((const json*)json_ptr);
+
+	if(config_json.find("use_downsample") != config_json.end()){
+		m_use_downsample = config_json["use_downsample"];
+	}
+}
+
 bool surfelwarp::ConfigParser::isSaveOnlineFrame() const{
 	return m_save_online_frame;
 }

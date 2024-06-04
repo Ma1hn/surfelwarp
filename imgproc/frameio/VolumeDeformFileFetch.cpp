@@ -10,6 +10,8 @@ surfelwarp::VolumeDeformFileFetch::VolumeDeformFileFetch(const path& data_path) 
 	const auto & config = ConfigParser::Instance();
 	// before read any image, m_cur_frame_idx = start_idx - 1
 	m_cur_frame_idx = config.start_frame_idx() - 1;
+	m_image_rows = config.raw_image_rows();
+	m_image_cols = config.raw_image_cols();
     m_thread = std::thread(&surfelwarp::VolumeDeformFileFetch::ReadImageFromFile, this);
 }
 
@@ -75,6 +77,29 @@ void surfelwarp::VolumeDeformFileFetch::FetchDepthAndRGBImage(size_t frame_idx, 
 	LOG(FATAL) << "time out to fetch images" << std::endl;
 }
 
+void surfelwarp::VolumeDeformFileFetch::DownSampleImage()
+{
+	if (d_color_src.empty()) {
+		d_color_src = cv::cuda::createContinuous(m_image_rows, m_image_cols, CV_8UC3);
+	}
+	if (d_depth_src.empty()) {
+		d_depth_src = cv::cuda::createContinuous(m_image_rows, m_image_cols, CV_16UC1);
+	}
+
+	d_color_src.upload(m_color_img);
+	d_depth_src.upload(m_depth_img);
+
+	m_color_img.release();
+	m_depth_img.release();
+
+	cv::cuda::pyrDown(d_color_src, d_color_downsampled);
+	cv::cuda::pyrDown(d_depth_src, d_depth_downsampled);
+	cv::cuda::bilateralFilter(d_depth_downsampled, d_depth_smoothed, 7.0, 20.0, 20.0);
+
+	d_color_downsampled.download(m_color_img);
+	d_depth_smoothed.download(m_depth_img);
+}
+
 void surfelwarp::VolumeDeformFileFetch::FetchRGBImage(size_t frame_idx, void * rgb_img)
 {
 
@@ -136,11 +161,15 @@ void surfelwarp::VolumeDeformFileFetch::ReadImageFromFile(){
                 break;
             }
 
-        	cv::Mat depth_img = cv::imread(depth_file_path.string(), CV_ANYCOLOR | CV_ANYDEPTH);
-		    m_depth_images.push_back(depth_img);
-
-            cv::Mat rgb_img = cv::imread(rgb_file_path.string(), CV_ANYCOLOR | CV_ANYDEPTH);
-    		m_color_images.push_back(rgb_img);
+        	m_depth_img = cv::imread(depth_file_path.string(), CV_ANYCOLOR | CV_ANYDEPTH);
+			m_color_img = cv::imread(rgb_file_path.string(), CV_ANYCOLOR | CV_ANYDEPTH);
+			
+			// downsample
+			if (config.use_downsample()) DownSampleImage();
+			
+			m_depth_images.push_back(m_depth_img);
+			m_color_images.push_back(m_color_img);
+			
         } else {
             usleep(3000);
         }

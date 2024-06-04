@@ -30,6 +30,7 @@ namespace surfelwarp
 		void FetchRGBImage(size_t frame_idx, cv::Mat& rgb_img) override;
 		void FetchRGBImage(size_t frame_idx, void* rgb_img) override;
 		void FetchDepthAndRGBImage(size_t frame_idx, cv::Mat& depth_img, cv::Mat& rgb_img) override;
+		void DownSampleImage() override;
 
 	private:
 		path m_data_path; //The path prefix for the data
@@ -42,8 +43,18 @@ namespace surfelwarp
 		std::thread m_thread;
 		std::list<cv::Mat> m_depth_images;
 		std::list<cv::Mat> m_color_images;
-
+		cv::Mat m_depth_img;
+		cv::Mat m_color_img;
+		cv::cuda::GpuMat d_color_src;
+		cv::cuda::GpuMat d_color_downsampled;
+		cv::cuda::GpuMat d_depth_smoothed;
+		cv::cuda::GpuMat d_depth_src;
+		cv::cuda::GpuMat d_depth_downsampled;
+		int m_image_rows;
+		int m_image_cols;
+		
 		void ReadImageFromFile();
 		std::mutex m_mutex;
+		ConfigParser& config = ConfigParser::Instance();
 	};
 }

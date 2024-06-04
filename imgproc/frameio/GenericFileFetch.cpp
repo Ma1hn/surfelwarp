@@ -193,3 +193,8 @@ void surfelwarp::GenericFileFetch::FetchDepthAndRGBImage(size_t frame_id, cv::Ma
 	std::cout << "Error: not implemented yet." << std::endl;
 	exit(-1);
 }
+
+void surfelwarp::GenericFileFetch::DownSampleImage()
+{
+	
+}
