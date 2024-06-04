@@ -50,18 +50,11 @@ namespace surfelwarp
         cv::cuda::GpuMat d_color_src;
         cv::cuda::GpuMat d_color_downsampled;
 
-        // undistort
-		cv::Mat m_camera_matrix;
-		cv::Mat m_new_camera_matrix;
-		cv::Mat m_map1;
-		cv::Mat m_map2;
 
         std::vector<cv::Mat> m_depth_image_vec;
 		std::vector<cv::Mat> m_color_image_vec;
 
         // frame property
-		size_t m_frame_height_pixels;
-		size_t m_frame_width_pixels;
 		cv::Size m_frame_size;
         size_t m_cur_frame_num;
 

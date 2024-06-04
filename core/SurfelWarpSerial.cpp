@@ -13,7 +13,7 @@
 #include "imgproc/frameio/GenericFileFetch.h"
 #include "imgproc/frameio/VolumeDeformFileFetch.h"
 // #include "imgproc/frameio/AzureKinectDKFetch.h"
-#include "imgproc/frameio/RealsenseFectch.h"
+#include "imgproc/frameio/RealsenseFetch.h"
 #include "visualization/Visualizer.h"
 
 #include <thread>

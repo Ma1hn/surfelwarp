@@ -1,4 +1,4 @@
-#include "RealsenseFectch.h"
+#include "RealsenseFetch.h"
 
 surfelwarp::RealsenseFetch::RealsenseFetch(const path& data_path, bool save_online_frame) : 
 m_save_online_frame(save_online_frame), 
