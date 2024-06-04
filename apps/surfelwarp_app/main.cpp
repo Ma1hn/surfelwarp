@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 	//Get the config path
 	std::string config_path;
 	if (argc <= 1) {
-		config_path = "/home/rvclab/dev/surfelwarp/test_data/boxing_config.json";
+		config_path = "/home/rvclab/dev/surfelwarp/test_data/realsense_config.json";
 	} else {
 		config_path = std::string(argv[1]);
 	}

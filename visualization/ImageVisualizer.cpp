@@ -59,10 +59,7 @@ void surfelwarp::Visualizer::SaveDepthImage(cudaTextureObject_t depth_img, const
 */
 void surfelwarp::Visualizer::DrawRGBImage(const cv::Mat &rgb_img) {
 	cv::imshow("color image", rgb_img);
-	int key = cv::waitKey(100);
-	if (key == 'q') {
-		cv::destroyAllWindows();
-	}
+	cv::waitKey(0);
 }
 
 void surfelwarp::Visualizer::SaveRGBImage(const cv::Mat &rgb_img, const std::string &path) {

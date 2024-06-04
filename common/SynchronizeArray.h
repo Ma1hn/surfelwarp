@@ -74,8 +74,6 @@ namespace surfelwarp {
 		//The sync interface
 		void SynchronizeToDevice(cudaStream_t stream = 0) {
 			//Update the size
-			LOG(INFO)<<"size of device array: "<<m_device_array.Capacity();
-			LOG(INFO)<<"size of host array: "<<m_host_array.size();
 			m_device_array.ResizeArrayOrException(m_host_array.size());
 			
 			//Actual sync

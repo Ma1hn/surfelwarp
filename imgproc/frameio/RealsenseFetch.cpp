@@ -139,6 +139,7 @@ void surfelwarp::RealsenseFetch::grab_frame() {
             m_depth_image = cv::Mat(cv::Size(640, 480), CV_16UC1, (void*)m_depth_frame.get_data(), cv::Mat::AUTO_STEP);
         }   
         
+        
         // 打印矩阵信息用于调试
         // #if defined(DEBUG)
         //     LOG(INFO)<<"Depth image: " << m_depth_image.size() << " " << m_depth_image.type();
@@ -175,9 +176,10 @@ void surfelwarp::RealsenseFetch::grab_frame() {
 
 // 彩色图像降采样
 void surfelwarp::RealsenseFetch::DownSampleImage() {
-    d_color_src = cv::cuda::createContinuous( m_rgb_intrinsics.height,  m_rgb_intrinsics.width, CV_8UC3);
+    d_color_src = cv::cuda::createContinuous(config.raw_image_rows(), config.raw_image_cols(), CV_8UC3);
     d_color_src.upload(m_color_image);
     m_color_image.release();
     cv::cuda::pyrDown(d_color_src, d_color_downsampled);
     d_color_downsampled.download(m_color_image);
+
 }

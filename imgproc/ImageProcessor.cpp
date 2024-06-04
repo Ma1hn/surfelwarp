@@ -186,9 +186,9 @@ void surfelwarp::ImageProcessor::releaseFetchBuffer()
 
 void surfelwarp::ImageProcessor::FetchFrame(size_t frame_idx)
 {
-	// store current rgb image
+	// store last frame rgb image as prev
     m_rgb_img_stored = m_rgb_img;
-    // fetch current depth and rgb image
+    // fetch curent depth and rgb image
 	m_image_fetcher->FetchDepthAndRGBImage(frame_idx, m_depth_img, m_rgb_img);
 
 	// fetch rgb image prev

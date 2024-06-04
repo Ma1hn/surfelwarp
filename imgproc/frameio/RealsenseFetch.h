@@ -40,7 +40,6 @@ namespace surfelwarp
         rs2::decimation_filter m_dec_filter;
         rs2::disparity_transform m_depth_to_disparity;
 	    rs2::disparity_transform m_disparity_to_depth;
-        rs2_intrinsics m_rgb_intrinsics;
         rs2::pipeline_profile m_profile;
         rs2::frame m_depth_frame;
         rs2::frame m_color_frame;
