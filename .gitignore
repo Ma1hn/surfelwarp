@@ -1,2 +1,4 @@
 test_data/sintel_small_speed
 result/
+build/
+.vscode

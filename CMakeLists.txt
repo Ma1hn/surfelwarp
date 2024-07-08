@@ -153,7 +153,7 @@ add_subdirectory(hashing)
 #      Project Options
 # ===================================================================
 # 1.Examples
-if(${NONRIGID_RECON_EXAMPLES})
+if(${NONRIGID_RECON_APPS})
     message(STATUS "Build non-rigid reconstruction surfelwarp applications")
     add_subdirectory(apps)
 endif()
