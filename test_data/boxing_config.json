@@ -2,9 +2,9 @@
     "io_mode": "VolumeDeformFileFetch",
     "clip_far":13000,
     "clip_near":0,
-    "data_prefix":"/home/rvclab/dev/surfelwarp/test_data/dataset/boxing",
+    "data_prefix":"/home/roboticlab/Desktop/Maihn/surfelwarp/test_data/dataset/boxing",
     "depth_focal_x":570.342,"depth_focal_y":570.342,"depth_principal_x":320.0,"depth_principal_y":240.0,
-    "gpc_model_path":"/home/rvclab/dev/surfelwarp/test_data/sintel_small_speed",
+    "gpc_model_path":"/home/roboticlab/Desktop/Maihn/surfelwarp/test_data/sintel_small_speed",
     "image_cols":640,"image_rows":480,
     "start_frame":0,
     "num_frame":310,
@@ -20,5 +20,5 @@
     "show_online": true,
     "save_live_albedo_map": true,
     "save_se3": false,
-    "save_path": "/home/rvclab/dev/surfelwarp/result/boxing"
+    "save_path": "/home/roboticlab/Desktop/Maihn/surfelwarp/result/boxing"
 }

@@ -3,8 +3,8 @@
     "save_online_frame": false,
     "clip_far":1500,
     "clip_near":20,
-    "data_prefix":"/home/rvclab/dev/surfelwarp/test_data/dataset/realsense1",
-    "gpc_model_path":"/home/rvclab/dev/surfelwarp/test_data/sintel_small_speed",
+    "data_prefix":"/home/roboticlab/Desktop/Maihn/teleop_virtual_fixture/thirdparty/surfelwarp/test_data",
+    "gpc_model_path":"/home/roboticlab/Desktop/Maihn/teleop_virtual_fixture/thirdparty/surfelwarp/test_data/sintel_small_speed",
     "image_cols":640,"image_rows":480,
     "start_frame":0,
     "num_frame":900,
@@ -21,5 +21,5 @@
     "show_online": true,
     "save_live_albedo_map": true,
     "save_se3": false,
-    "save_path": "/home/rvclab/dev/surfelwarp/result/realsense1"
+    "save_path": "/home/roboticlab/Desktop/Maihn/teleop_virtual_fixture/thirdparty/surfelwarp/result/realsense1"
 }
