@@ -233,7 +233,6 @@ void surfelwarp::Renderer::drawVisualizationMap(GLShaderProgram& shader,
     // Draw it
     glDrawArrays(GL_POINTS, 0, num_vertex);
     bool show_demo_window = true;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();

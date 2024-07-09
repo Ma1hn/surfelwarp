@@ -12,6 +12,7 @@ surfelwarp::Renderer::Renderer(int image_rows, int image_cols)
 , m_image_height(image_rows)
 , m_fusion_map_width(image_cols * Constants::kFusionMapScale)
 , m_fusion_map_height(image_rows * Constants::kFusionMapScale)
+, m_io(ImGui::GetIO())
 {
     if (!glfwInit()) {
         LOG(FATAL) << "The graphic pipeline is not correctly initialized";
@@ -100,7 +101,6 @@ void surfelwarp::Renderer::initImGui()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(mGLFWwindow, true);
     ImGui_ImplOpenGL3_Init(glsl_version);

@@ -66,6 +66,7 @@ private:
 private:
     void initImGui();
     const char* glsl_version = "#version 450 core";
+    ImGuiIO& m_io;
 
     /* The buffer and method to clear the image
      */
