@@ -6,6 +6,7 @@
 #include "common/Constants.h"
 #include "common/ConfigParser.h"
 #include "Renderer.h"
+#include "core/SurfelWarpSerial.h"
 
 surfelwarp::Renderer::Renderer(int image_rows, int image_cols)
 : m_image_width(image_cols)
@@ -104,6 +105,24 @@ void surfelwarp::Renderer::initImGui()
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(mGLFWwindow, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
+}
+
+void surfelwarp::Renderer::ImGuiWindow(int current_time)
+{
+    static float f = 0.0f;
+    static int counter = 0;
+    bool use_reinit = surfelwarp::SurfelWarpSerial::get_use_periodic_reinit();
+    ImGui::SetNextWindowPos(ImVec2(1200, 720), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("Surfelwarp!"); // Create a window called "Hello,
+                                 // world!" and append into it.
+    ImGui::Text("current_frame_index = %d", current_time);
+    ImGui::Checkbox("Use reinit", &use_reinit);
+    surfelwarp::SurfelWarpSerial::set_use_periodic_reinit(use_reinit);
+
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
 }
 
 /* Initialize the value to clear the rendered images

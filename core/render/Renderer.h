@@ -65,6 +65,7 @@ private:
      */
 private:
     void initImGui();
+    void ImGuiWindow(int current_time);
     const char* glsl_version = "#version 450 core";
     ImGuiIO& m_io;
 

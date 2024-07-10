@@ -19,6 +19,19 @@
 #include <thread>
 #include <fstream>
 
+bool surfelwarp::SurfelWarpSerial::m_use_periodic_reinit
+    = surfelwarp::ConfigParser::Instance().use_periodic_reinit();
+
+bool surfelwarp::SurfelWarpSerial::get_use_periodic_reinit()
+{
+    return m_use_periodic_reinit;
+}
+
+void surfelwarp::SurfelWarpSerial::set_use_periodic_reinit(bool value)
+{
+    m_use_periodic_reinit = value;
+}
+
 surfelwarp::SurfelWarpSerial::SurfelWarpSerial()
 {
     // The config is assumed to be updated
@@ -304,7 +317,7 @@ void surfelwarp::SurfelWarpSerial::ProcessNextFrameWithReinit(
         auto skinner_warpfield = m_warp_field->SkinnerAccess();
         m_reference_knn_skinner->PerformSkinning(
             skinner_geometry, skinner_warpfield);
-        TimeLogger::printTimeLog("reinit");
+        TIME_LOG(TimeLogger::printTimeLog("reinit"));
     } else if (do_integrate) {
         // Update the frame idx
         fused_geometry_idx = (m_updated_geometry_index + 1) % 2;
@@ -529,7 +542,8 @@ static bool shouldDoReinitConfig(int frame_idx)
     const auto& config = ConfigParser::Instance();
 
     // Check the config
-    if (!config.use_periodic_reinit()) {
+    // Do not use reinit
+    if (!surfelwarp::SurfelWarpSerial::get_use_periodic_reinit()) {
         return false;
     }
 

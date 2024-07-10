@@ -232,12 +232,12 @@ void surfelwarp::Renderer::drawVisualizationMap(GLShaderProgram& shader,
 
     // Draw it
     glDrawArrays(GL_POINTS, 0, num_vertex);
-    bool show_demo_window = true;
+    // bool show_demo_window = true;
     glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow(&show_demo_window);
+    ImGuiWindow(current_time);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(mGLFWwindow);

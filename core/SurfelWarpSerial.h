@@ -124,6 +124,13 @@ private:
     bool shouldDoIntegration() const;
     bool shouldDoReinit() const;
     bool shouldDrawRecentObservation() const;
+
+private:
+    static bool m_use_periodic_reinit;
+
+public:
+    static bool get_use_periodic_reinit();
+    static void set_use_periodic_reinit(bool value);
 };
 
 }
